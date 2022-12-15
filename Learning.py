@@ -31,5 +31,43 @@ print(TENSOR_32)
 print(f"Data type: {TENSOR_RAND.dtype} Size of data: {TENSOR_RAND.shape} device type: {TENSOR_RAND.device}  ")
 
 
+
+#####################################################
+#Element wise multiplication
+
+TENSOR = torch.tensor([1,2,3])
+
+print(TENSOR*TENSOR)
+
+# Matrix mulitplication
+print(torch.matmul(TENSOR, TENSOR))
+
+#INTENTIONAL SHAPE ERROR (3,2)(3,2)
+TENSOR_A = torch.tensor([[1,2],
+                          [3,4],
+                          [5,6]])
+
+TENSOR_B = torch.tensor([[7,8],
+                          [9,10],
+                          [11,12]])
+#TRANSPOSED
+print(torch.mm(TENSOR_A,TENSOR_B.T))
+
 '''
+#####################################################
+#TENSOR AGGRIGATION
+
+X = torch.arange(0,100,10)
+
+print(X)
+print(torch.min(X), X.min())
+print(torch.max(X), X.max())
+print(torch.mean(X.type(torch.float32)), X.type(torch.float32).mean())
+print(torch.sum(X), X.sum())
+
+#POSITIONAL MIN AND MAX
+print(torch.argmin(X), torch.argmax(X))
+
+
+
 

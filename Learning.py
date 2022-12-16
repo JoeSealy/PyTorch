@@ -53,7 +53,7 @@ TENSOR_B = torch.tensor([[7,8],
 #TRANSPOSED
 print(torch.mm(TENSOR_A,TENSOR_B.T))
 
-'''
+
 #####################################################
 #TENSOR AGGRIGATION
 
@@ -68,6 +68,30 @@ print(torch.sum(X), X.sum())
 #POSITIONAL MIN AND MAX
 print(torch.argmin(X), torch.argmax(X))
 
+###############################################################
+'''
+#RESHAPIONG, STACKING SQUEEZING AND UNSQUEEZING TENSORS
 
+a = torch.rand(2,4,4)
+a_reshape = a.reshape(1,8,4)
+print(a_reshape)
 
+#change the view
+print(a.view(8,1,4))
 
+#stacking on top = dim=0 | side by side = dim=1
+a_stacked = torch.stack([a,a,a,a], dim=2)
+print(a_stacked)
+
+#SQUEEZE
+a_squeezed = a_reshape.squeeze(dim=0)
+print(f"squeezed: ", a_squeezed.shape)
+
+#UNSQUEEZE
+a_unsqueeze = a_squeezed.unsqueeze(dim=1)
+print(f"unsquezed: ", a_unsqueeze.shape)
+
+#PERMUTE
+print(f"reshaped: ",a_reshape.shape)
+a_permute = torch.permute(a_reshape, (2,0,1))
+print(f"permuted: ",a_permute.shape)

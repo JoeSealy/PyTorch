@@ -69,7 +69,7 @@ print(torch.sum(X), X.sum())
 print(torch.argmin(X), torch.argmax(X))
 
 ###############################################################
-'''
+
 #RESHAPIONG, STACKING SQUEEZING AND UNSQUEEZING TENSORS
 
 a = torch.rand(2,4,4)
@@ -106,3 +106,33 @@ print(x[:, :, 1])
 print(x[:, 1, 1])
 print(x[:, 2, 2])
 print(x[:, :, 2])
+
+#############################################
+#Numpy array's and torch tensors
+
+array = np.arange(1.0,8.0)
+tensor = torch.from_numpy(array)
+print(array, tensor)
+
+#change the value of array ,obviously tensor doesnt change
+array = array + 1
+print(array, tensor)
+
+tensor_one = torch.ones(7)
+numpy_tensor = tensor.numpy()
+print(tensor_one, numpy_tensor)
+###############################################
+'''
+#reproducability
+RTensor_A = torch.rand(3,4)
+RTensor_B = torch.rand(3,4)
+print(RTensor_A == RTensor_B)
+
+RANDOM_SEED = 42
+torch.manual_seed(RANDOM_SEED)
+RTensor_C = torch.rand(3,4)
+torch.manual_seed(RANDOM_SEED)
+RTensor_D = torch.rand(3,4)
+
+print(RTensor_C, RTensor_D)
+print(RTensor_C == RTensor_D)

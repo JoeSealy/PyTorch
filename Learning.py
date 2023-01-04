@@ -3,7 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 print(torch.__version__)
+print(torch.cuda.is_available())
 '''
 TENSOR = torch.tensor([[[1,2,3],
                         [3,4,5],
@@ -121,8 +123,9 @@ print(array, tensor)
 tensor_one = torch.ones(7)
 numpy_tensor = tensor.numpy()
 print(tensor_one, numpy_tensor)
+
 ###############################################
-'''
+
 #reproducability
 RTensor_A = torch.rand(3,4)
 RTensor_B = torch.rand(3,4)
@@ -136,3 +139,20 @@ RTensor_D = torch.rand(3,4)
 
 print(RTensor_C, RTensor_D)
 print(RTensor_C == RTensor_D)
+'''
+########################################################
+#GPU setup, so if there is a GPU available 
+print(torch.cuda.device_count())
+device = "cuda" #if torch.cuda.is_available() else "cpu"
+
+tensor =  torch.tensor([1,2,3])
+print(tensor, tensor.device)
+
+tensor_on_gpu = tensor.to(device)
+print(tensor_on_gpu.device)
+
+print(tensor_on_gpu.numpy())
+
+tensor_back_on_cpu = tensor_on_gpu.cpu().numpy()
+print(tensor_back_on_cpu)
+

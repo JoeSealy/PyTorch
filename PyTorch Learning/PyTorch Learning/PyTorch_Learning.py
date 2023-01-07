@@ -1,19 +1,18 @@
+#PyTorch workflow
 
-import torch 
+import torch
+from torch import nn
+import matplotlib.pyplot as plt
 
-print(torch.cuda.is_available())
+print(torch.__version__)
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+##DATA###############################
+weight = 0.7
+bias = 0.3
 
-print(device)
-
-tensor = torch.tensor([1,2,3])
-
-print(tensor, tensor.device)
-
-tensor_on_gpu = tensor.to(device)
-print(tensor_on_gpu)
-
-print(tensor_on_gpu.cpu().numpy())
-
-
+start = 0
+end = 1
+step = 0.02
+X= torch.arange(start,end,step).unsqueeze(dim=1)
+y = weight * X + bias
+print(X[:10], y[:10] )

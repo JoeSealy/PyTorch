@@ -12,7 +12,7 @@
     <OutputPath>.</OutputPath>
     <Name>PyTorch Workflow</Name>
     <RootNamespace>PyTorch Learning</RootNamespace>
-    <InterpreterId>Global|VisualStudio|pythonCUDA</InterpreterId>
+    <InterpreterId>CondaEnv|CondaEnv|pythonCUDA</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

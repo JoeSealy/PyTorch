@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PyTorch Workflow", "PyTorch Learning\PyTorch Workflow.pyproj", "{08951A62-CA3D-43E6-9025-117145239614}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Overflow", "Overflow\Overflow.pyproj", "{F8455708-C94B-49C6-9798-9BEFB8B82740}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{08951A62-CA3D-43E6-9025-117145239614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{08951A62-CA3D-43E6-9025-117145239614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8455708-C94B-49C6-9798-9BEFB8B82740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8455708-C94B-49C6-9798-9BEFB8B82740}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0F13B711-1FA4-4181-8EB3-E474814DCF44}
+		SolutionGuid = {3E0B7974-67DE-4B2D-9DDF-0CE814FDB15A}
 	EndGlobalSection
 EndGlobal

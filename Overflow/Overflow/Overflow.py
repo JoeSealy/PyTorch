@@ -1,11 +1,13 @@
 #PyTorch workflow
 
+from importlib.metadata import requires
+from pickle import TRUE
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
 print(torch.__version__)
-
+"""
 ##DATA###############################
 weight = 0.7
 bias = 0.3
@@ -31,9 +33,9 @@ def plot_predictions(train_data=X_train,
                      test_data=X_test,
                      test_labels =y_test,
                      predictions=None):
-    """
+    
     plots training data, test data and compares predictions.
-    """
+    
     plt.figure(figsize = (10,7))
 
     #Plot training data in blue
@@ -51,5 +53,17 @@ def plot_predictions(train_data=X_train,
     plt.show()
 
 print(plot_predictions())
+"""
 
 class LinearRegressionModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.weights = nn.Parameter(torch.randn(1, 
+                                                requires_grad=True,
+                                                dtype=torch.float))
+        self.bias = nn.Parameter(torch.randn(1, 
+                                                requires_grad=True,
+                                                dtype=torch.float))
+        # foward method
+        def forward(self, x:torch.Tensor) -> torch.Tensor:
+            return self.weights * x + self.bias

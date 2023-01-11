@@ -2,17 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>08951a62-ca3d-43e6-9025-117145239614</ProjectGuid>
-    <ProjectHome>
-    </ProjectHome>
-    <StartupFile>PyTorch_Learning.py</StartupFile>
+    <ProjectGuid>f8455708-c94b-49c6-9798-9befb8b82740</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>Overflow.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>PyTorch Workflow</Name>
-    <RootNamespace>PyTorch Learning</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|pythonCUDA</InterpreterId>
+    <Name>Overflow</Name>
+    <RootNamespace>Overflow</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -23,11 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PyTorch_Learning.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|pythonCUDA" />
-    <InterpreterReference Include="Global|VisualStudio|pythonCUDA" />
+    <Compile Include="Overflow.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

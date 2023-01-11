@@ -1,13 +1,11 @@
 #PyTorch workflow
 
-from importlib.metadata import requires
-from pickle import TRUE
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
 
 print(torch.__version__)
-"""
+
 ##DATA###############################
 weight = 0.7
 bias = 0.3
@@ -34,7 +32,7 @@ def plot_predictions(train_data=X_train,
                      test_labels =y_test,
                      predictions=None):
     
-    plots training data, test data and compares predictions.
+    #plots training data, test data and compares predictions.
     
     plt.figure(figsize = (10,7))
 
@@ -52,8 +50,8 @@ def plot_predictions(train_data=X_train,
 
     plt.show()
 
-print(plot_predictions())
-"""
+#print(plot_predictions())
+
 
 class LinearRegressionModel(nn.Module):
     def __init__(self):
@@ -65,5 +63,69 @@ class LinearRegressionModel(nn.Module):
                                                 requires_grad=True,
                                                 dtype=torch.float))
         # foward method
-        def forward(self, x:torch.Tensor) -> torch.Tensor:
-            return self.weights * x + self.bias
+    def forward(self, x:torch.Tensor) -> torch.Tensor:
+        return self.weights * x + self.bias
+
+
+torch.randn(1)
+
+model_0 = LinearRegressionModel()
+
+print(list(model_0.parameters()))
+print(list(model_0.state_dict()))
+
+with torch.inference_mode():
+    y_preds = model_0(X_test)
+
+print(y_preds)
+
+print(y_test)
+
+print(plot_predictions(predictions=y_preds))
+#loss function
+loss_fn = nn.L1Loss()
+#optimiser
+optimizer = torch.optim.SGD(params=model_0.parameters(),lr =0.01)
+
+
+torch.manual_seed(42)
+#an epoch is 1 loop through the data
+epochs = 10000
+
+#0.Loop through the data
+for epoch in range(epochs):
+
+    print("amount of attemps: ", epoch)
+    #set the model to raining mode
+    model_0.train() #train mode in pytorch sets all parameters that require gradients to require gradients
+
+    #Forward pass
+    y_pred = model_0(X_train)
+
+    #Claculate loss
+    loss = loss_fn(y_pred, y_train)
+    print("Loss: ",loss)
+
+    #Optermiser zero grad
+    optimizer.zero_grad()
+
+    #Perform backpropagation on the loss with repect to the parameters of the model
+    loss.backward()
+
+    #step the optimiser
+    optimizer.step()
+
+    #testing
+    model_0.eval() #turns off gradient tracking
+    with torch.inference_mode():
+        test_pred = model_0(X_test)
+
+        test_loss = loss_fn(test_pred, y_test)
+    
+    if epoch % 10 == 0:
+        print(f"Epoch: {epoch} | Loss: {loss} | Test loss: {test_loss}")
+        
+with torch.inference_mode():
+    y_preds_new = model_0(X_test)
+
+print(plot_predictions(predictions=y_preds_new))

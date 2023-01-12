@@ -87,10 +87,16 @@ loss_fn = nn.L1Loss()
 #optimiser
 optimizer = torch.optim.SGD(params=model_0.parameters(),lr =0.01)
 
+#Tracking
+epoch_count = []
+loss_values = []
+test_loss_values = []
+
+
 
 torch.manual_seed(42)
 #an epoch is 1 loop through the data
-epochs = 10000
+epochs = 1000
 
 #0.Loop through the data
 for epoch in range(epochs):
@@ -123,9 +129,21 @@ for epoch in range(epochs):
         test_loss = loss_fn(test_pred, y_test)
     
     if epoch % 10 == 0:
+        epoch_count.append(torch.tensor(epoch).numpy())
+        loss_values.append(torch.tensor(loss).numpy())
+        test_loss_values.append(torch.tensor(test_loss).numpy())
         print(f"Epoch: {epoch} | Loss: {loss} | Test loss: {test_loss}")
         
 with torch.inference_mode():
     y_preds_new = model_0(X_test)
 
+
 print(plot_predictions(predictions=y_preds_new))
+
+plt.plot(epoch_count, loss_values, label = "Train loss")
+plt.plot(epoch_count, test_loss_values, label = "Test loss")
+plt.title("Training and test loss curves")
+plt.ylabel("Loss")
+plt.xlabel("Epochs")
+plt.show()
+

@@ -96,6 +96,7 @@ def results():
     plt.show()
     
 results()
+"""
 # 1. Create models directory 
 MODEL_PATH = Path("models")
 MODEL_PATH.mkdir(parents = True,exist_ok = True)
@@ -105,7 +106,6 @@ MODEL_SAVE_PATH = MODEL_PATH / MODEL_NAME
 # 3. Save the model state dict
 print(f"Saving model to {MODEL_SAVE_PATH}")
 torch.save(obj = model.state_dict(),f = MODEL_SAVE_PATH)
-
 
 device = "cuda"
 # Create new instance of model and load saved state dict (make sure to put it on the target device)
@@ -118,3 +118,4 @@ y_preds_new = loaded_model(X_test)
 y_preds == y_preds_new
 
 loaded_model.state_dict()
+"""

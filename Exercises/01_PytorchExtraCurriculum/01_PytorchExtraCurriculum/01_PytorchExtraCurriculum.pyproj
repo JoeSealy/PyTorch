@@ -2,16 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>589f9f59-ac9c-4b4c-bd5a-b72172de9385</ProjectGuid>
+    <ProjectGuid>1a58d7dd-56be-4062-86a2-58beca643028</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>_01_PyTorchExerciseWorkflow.py</StartupFile>
+    <StartupFile>_01_PytorchExtraCurriculum.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>01_PyTorchExerciseWorkflow</Name>
-    <RootNamespace>01_PyTorchExerciseWorkflow</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|pythonCUDA</InterpreterId>
+    <Name>01_PytorchExtraCurriculum</Name>
+    <RootNamespace>01_PytorchExtraCurriculum</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,11 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="_01_PyTorchExerciseWorkflow.py" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|pythonCUDA" />
-    <InterpreterReference Include="CondaEnv|CondaEnv|PyTorchenv" />
+    <Compile Include="_01_PytorchExtraCurriculum.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

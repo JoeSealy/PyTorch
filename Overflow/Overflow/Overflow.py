@@ -3,6 +3,7 @@
 import torch
 from torch import nn
 import matplotlib.pyplot as plt
+from pathlib import Path 
 
 print(torch.__version__)
 
@@ -146,4 +147,19 @@ plt.title("Training and test loss curves")
 plt.ylabel("Loss")
 plt.xlabel("Epochs")
 plt.show()
+
+
+#SAVE
+MODEL_PATH = Path("models")
+MODEL_PATH.mkdir(parents = True, exist_ok = True)
+MODEL_NAME = "01_pytorchWorkflow.pt"
+MODEL_SAVE_PATH = MODEL_PATH/MODEL_NAME
+print(f"Saving model to:{MODEL_SAVE_PATH}")
+torch.save(obj=model_0.state_dict(), f=MODEL_SAVE_PATH)
+
+#LOADING
+print(model_0.state_dict())
+loaded_model_0 = LinearRegressionModel()
+loaded_model_0.load_state_dict(torch.load(f=MODEL_SAVE_PATH))
+print(loaded_model_0.state_dict())
 

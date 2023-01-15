@@ -163,3 +163,17 @@ loaded_model_0 = LinearRegressionModel()
 loaded_model_0.load_state_dict(torch.load(f=MODEL_SAVE_PATH))
 print(loaded_model_0.state_dict())
 
+
+
+
+
+#better alternative for the foward pass
+
+class LinearRegressionModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.linear_layer = nn.Linear(in_features=1,
+                                        out_features=1)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.linear_layer(x)
+

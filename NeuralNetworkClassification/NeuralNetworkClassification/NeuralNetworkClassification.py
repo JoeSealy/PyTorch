@@ -127,6 +127,7 @@ X_train, y_train = X_train.to(device), y_train.to(device)
 
 
 for epoch in range(epochs):
+
     
 
 

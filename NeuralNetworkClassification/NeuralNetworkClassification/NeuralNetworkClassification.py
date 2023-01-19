@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 from torch import nn
-
+"""
 n_samples = 1000
 
 X, y = make_circles(n_samples,
@@ -21,13 +21,13 @@ print(f"First 5 samples of y:\n{y[:5]}")
 circles = pd.DataFrame({"X1": X[:, 0],
                         "X2": X[:, 1],
                         "label": y})
-print(circles.head(10))
+#print(circles.head(10))
 
 #visualise
-plt.scatter(x=X[:, 0],
-            y=X[:, 1],
-            c=y,
-            cmap=plt.cm.RdYlBu);
+#plt.scatter(x=X[:, 0],
+#            y=X[:, 1],
+ #           c=y,
+ #           cmap=plt.cm.RdYlBu);
 #plt.show()
 
 #check input and output shapes
@@ -103,6 +103,7 @@ def accuracy_fn(y_true, y_pred):
     return acc
 
 #train model
+
 model_0.eval()
 with torch.inference_mode():
     y_logits = model_0(X_test.to(device))[:5]
@@ -118,7 +119,6 @@ y_preds_label = torch.round(torch.sigmoid(model_0(X_test.to(device))[:5]))
 print(torch.eq(y_preds.squeeze(), y_preds_label.squeeze()))
 
 print(y_preds.squeeze())
-
 
 #training and testing loop
 torch.cuda.manual_seed(42)
@@ -151,7 +151,7 @@ for epoch in range(epochs):
                                y_pred=test_pred)
     if epoch % 10 == 0:
         print(f"Epoch: {epoch} | Loss: {loss:.5f}, Acc: {acc:.2f}% | Test Loss: {test_loss:.5f}, Test acc: {test_acc:.2f}% ")
-    
+   
 def plot_decision_boundary(model: torch.nn.Module, X: torch.Tensor, y: torch.Tensor):
     model.to("cpu")
     X, y = X.to("cpu"), y.to("cpu")
@@ -181,6 +181,7 @@ def plot_decision_boundary(model: torch.nn.Module, X: torch.Tensor, y: torch.Ten
     plt.xlim(xx.min(), xx.max())
     plt.ylim(yy.min(), yy.max())
 
+
 plt.figure(figsize=(12, 6))
 
 plt.subplot(1, 2, 1)
@@ -195,5 +196,107 @@ plt.show()
 
 
 
+class CircleModelV1(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer_1 = nn.Linear(in_features = 2, out_features = 10) # 2-5
+        self.layer_2 = nn.Linear(in_features = 10, out_features = 10) # 5-1
+        self.layer_3 = nn.Linear(in_features = 10, out_features = 1) # 5-1
+    def forward(self, x):
+        return (self.layer_3(self.layer_2(self.layer_1(x))))
 
+model_1 = CircleModelV1().to(device)
 
+loss_fn = nn.BCEWithLogitsLoss()
+optimizer = torch.optim.SGD(params=model_1.parameters(),lr=0.1)
+
+torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+
+epochs = 1000
+
+X_train, y_train = X_train.to(device), y_train.to(device)
+X_test, y_test = X_test.to(device), y_test.to(device)
+
+for epoch in range(epochs):
+    model_1.train()
+    y_logits = model_1(X_train).squeeze()
+    y_pred = torch.round(torch.sigmoid(y_logits))
+
+    loss = loss_fn(y_logits, y_train)
+    acc = accuracy_fn(y_true = y_train, y_pred = y_pred)
+
+    optimizer.zero_grad()
+
+    model_1.eval()
+    with torch.inference_mode():
+        test_logits = model_1(X_test).squeeze()
+        test_pred = torch.round(torch.sigmoid(test_logits))
+        test_loss = loss_fn(test_logits, y_test)
+        test_acc = accuracy_fn(y_true = y_test, y_pred = test_pred)
+
+    if epoch % 100 == 0:
+        print(f"Epoch: {epoch} | Loss: {loss:.5f}, Acc: {acc:.2f}% | Test Loss: {test_loss:.5f}, Test acc: {test_acc:.2f}% ")
+    
+plt.figure(figsize=(12, 6))
+
+plt.subplot(1, 2, 1)
+plt.title("Train")
+plot_decision_boundary(model_1, X_train, y_train)
+plt.show()
+
+plt.subplot(1, 2, 2)
+plt.title("Test")
+plot_decision_boundary(model_1, X_test, y_test)
+plt.show()
+"""
+#-------------------------------------------------------------------------
+device = "cuda" if torch.cuda.is_available() else "cpu"
+weight = 0.7
+bias = 0.3
+start = 0
+end = 1
+step = 0.01
+
+X_regression = torch.arange(start, end, step). unsqueeze(dim = 1)
+y_regression = weight * X_regression + bias
+
+print(len(X_regression))
+print(X_regression[:5], y_regression[:5])
+
+train_split = int(0.8 * len(X_regression))
+X_train_regression, y_train_regression = X_regression[:train_split], y_regression[:train_split]
+X_test_regression, y_test_regression = X_regression[train_split:], y_regression[train_split:]
+print(len(X_train_regression), len(X_test_regression), len(y_train_regression), len(y_test_regression) ) 
+
+def plot_predictions(
+    train_data, train_labels, test_data, test_labels, predictions=None
+):
+    """
+  Plots linear training data and test data and compares predictions.
+  """
+    plt.figure(figsize=(10, 7))
+
+    # Plot training data in blue
+    plt.scatter(train_data, train_labels, c="b", s=4, label="Training data")
+
+    # Plot test data in green
+    plt.scatter(test_data, test_labels, c="g", s=4, label="Testing data")
+
+    if predictions is not None:
+        # Plot the predictions in red (predictions were made on the test data)
+        plt.scatter(test_data, predictions, c="r", s=4, label="Predictions")
+
+    # Show the legend
+    plt.legend(prop={"size": 14})
+    plt.show()
+
+plot_predictions(train_data = X_train_regression, 
+                train_labels=y_train_regression,
+                test_data=X_test_regression,
+                test_labels = y_test_regression)
+
+model_2 = nn.Sequential(
+    nn.Linear(in_features =1, out_feature=10),
+    nn.Linear(in_features =1, out_feature=10),
+    nn.Linear(in_features =1, out_feature=10)).to(device)

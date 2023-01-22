@@ -1,6 +1,11 @@
 #02_PyTorchExerciseNeuaralNetworkClassification
-
-
+import torch
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import make_moons
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+"""
 # Import torch
 import torch
 
@@ -94,7 +99,7 @@ torch.manual_seed(RANDOM_SEED)
 torch.cuda.manual_seed(RANDOM_SEED)
 
 # Setup epochs
-epochs=1000
+epochs=100
 
 # Send data to the device
 X_train_moon, y_train_moon = X_train_moon.to(device), y_train_moon.to(device)
@@ -144,7 +149,7 @@ for epoch in range(epochs):
     
 
   # Print out what's happening every 100 epochs
-  if epoch % 100 == 0:
+  if epoch % 10 == 0:
       print(f"Epoch: {epoch} | Loss: {loss} | Test Loss: {test_loss}")
 
 # Import torch
@@ -199,5 +204,21 @@ plt.subplot(1, 2, 2)
 plt.title("Test")
 plot_decision_boundary(model, X_test_moon, y_test_moon)
 plt.show()
-     
-     
+"""     
+#-----------------------------------------------------------------------------------------
+# Create a straight line tensor
+
+tensor = torch.arange(-100, 100, 1)
+plt.plot(tensor)
+plt.show()
+
+
+# Test torch.tanh() on the tensor and plot it
+plt.plot(torch.tanh(tensor))
+plt.show()
+
+def tanh(z):
+	return (torch.exp(z) - torch.exp(-z)) / (torch.exp(z) + torch.exp(-z))
+
+plt.plot(tanh(tensor))
+plt.show()

@@ -1,4 +1,5 @@
 
+from cgi import test
 import torch
 from torch import nn
 
@@ -49,11 +50,11 @@ image, label = train_data[0]
 print(f"Image shape: {image.shape}")
 plt.imshow(image.squeeze()) # image shape is [1, 28, 28] (colour channels, height, width)
 plt.title(label);
-plt.show()
+#plt.show()
 
 plt.imshow(image.squeeze(), cmap="gray")
 plt.title(class_names[label]);
-plt.show()
+#plt.show()
 
 torch.manual_seed(42)
 fig = plt.figure(figsize=(9, 9))
@@ -148,7 +149,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(params=model_0.parameters(), lr=0.1)
 
 from timeit import default_timer as timer 
-def print_train_time(start: float, end: float, device: torch.device = None):
+def print_train_time(start: float, end: float, device: torch.device = "cuda"):
     """Prints difference between start and end time.
 
     Args:
@@ -163,4 +164,105 @@ def print_train_time(start: float, end: float, device: torch.device = None):
     print(f"Train time on {device}: {total_time:.3f} seconds")
     return total_time
 
+from tqdm.auto import tqdm
+
+torch.manual_seed(42)
+
+trainTimeStartOnCpu=timer()
+
+epochs = 3
+
+for epoch in tqdm(range(epochs)):
+    print(f"Epoch: {epoch}\n----------")
+
+    #training
+    train_loss = 0
+
+    for batch,(X,y) in enumerate(train_dataloader):
+        model_0.train()
+        y_pred = model_0(X)
+        loss = loss_fn(y_pred, y)
+        train_loss += loss
+        optimizer.zero_grad
+        loss.backward()
+        optimizer.step()
+        if batch%400 == 0:
+            print(f"Looked at {batch * len(X)}/{len(train_dataloader.dataset)} samples")
+
+    train_loss /= len(train_dataloader)
+    test_loss, test_acc =0,0
+    model_0.eval()
+    with torch.inference_mode():
+        test_pred = model_0(X)
+
+        test_loss += loss_fn(test_pred, y)
+        test_acc += accuracy_fn(y_true=y,
+                                    y_pred = test_pred.argmax(dim=1))
+        test_loss /= len(test_dataloader)
+
+        test_acc /= len(test_dataloader)
+
+    print(f"\nTrain loss: {train_loss:.5f} | Test loss: {test_loss:.5f}, Test acc: {test_acc:.2f}%\n")
+
+trainTimeEndOnCpu = timer()
+total_train_time_model_0 = print_train_time(start=trainTimeStartOnCpu,
+                                            end=trainTimeEndOnCpu,
+                                            device = str(next(model_0.parameters()).device))
+
+
+
+torch.manual_seed(3)
+def eval_model(model: nn.Module,
+               data_loader: torch.utils.data.DataLoader,
+               loss_fn: nn.Module,
+               accuracy_fn):
+    """Returns a dictionary containing the results of model predicting on data_loader.
+
+    Args:
+        model (torch.nn.Module): A PyTorch model capable of making predictions on data_loader.
+        data_loader (torch.utils.data.DataLoader): The target dataset to predict on.
+        loss_fn (torch.nn.Module): The loss function of model.
+        accuracy_fn: An accuracy function to compare the models predictions to the truth labels.
+
+    Returns:
+        (dict): Results of model making predictions on data_loader.
+    """
+    loss, acc = 0, 0
+    model.eval()
+    with torch.inference_mode():
+        for X, y in data_loader:
+            y_pred = model(X)
+
+            loss += loss_fn(y_pred, y)
+
+            acc += accuracy_fn(y_true=y,
+                               y_pred=y_pred.argmax(dim=1))
+
+        loss /= len(data_loader)
+
+        acc /= len(data_loader)
+
+    return {"model_name": model.__class__.__name__, # only works when model was created with a class
+            "model_loss": loss.item(),
+            "model_acc": acc}
+
+# Calculate model 0 results on test dataset
+model_0_results = eval_model(model=model_0, data_loader=test_dataloader,
+    loss_fn=loss_fn, accuracy_fn=accuracy_fn
+)
+model_0_results
+
+class FashionMNISTModelV1(nn.Module):
+    def __init__(self, input_shape: int, hidden_units: int, output_shape: int):
+        super().__init()
+        self.layer_stack = nn.Sequential(
+            nn.Flattern(),
+            nn.Linear(in_features=input_shape, out_features=hidden_units),
+            nn.ReLU(),
+            nn.Linear(in_features=hidden_units, out_features=output_shape),
+            nn.ReLU()
+            )
+
+        def forward(self, x: torch.Tensor):
+            return self.layer_stack(x)
 

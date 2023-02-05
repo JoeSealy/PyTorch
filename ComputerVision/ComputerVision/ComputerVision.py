@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 print(torch.version)
 print(torchvision.__version__)
 
-
+device = "cuda" if torch.cuda.is_available() else "cpu"
 # Setup training data
 train_data = datasets.FashionMNIST(
     root="data", # where to download data to?
@@ -98,6 +98,7 @@ plt.axis("Off");
 print(f"Image size: {img.shape}")
 print(f"Label: {label}, label size: {label.shape}")
 
+"""
 #Building the base model
 
 flattern_model = nn.Flatten()
@@ -150,7 +151,7 @@ optimizer = torch.optim.SGD(params=model_0.parameters(), lr=0.1)
 
 from timeit import default_timer as timer 
 def print_train_time(start: float, end: float, device: torch.device = "cuda"):
-    """Prints difference between start and end time.
+    Prints difference between start and end time.
 
     Args:
         start (float): Start time of computation (preferred in timeit format). 
@@ -159,16 +160,16 @@ def print_train_time(start: float, end: float, device: torch.device = "cuda"):
 
     Returns:
         float: time between start and end in seconds (higher is longer).
-    """
+    
     total_time = end - start
     print(f"Train time on {device}: {total_time:.3f} seconds")
     return total_time
-
+"""
 from tqdm.auto import tqdm
-
+"""
 torch.manual_seed(42)
 
-trainTimeStartOnCpu=timer()
+trainTimeStartOnCpu= timer()
 
 epochs = 3
 
@@ -216,7 +217,8 @@ def eval_model(model: nn.Module,
                data_loader: torch.utils.data.DataLoader,
                loss_fn: nn.Module,
                accuracy_fn):
-    """Returns a dictionary containing the results of model predicting on data_loader.
+ 
+    Returns a dictionary containing the results of model predicting on data_loader.
 
     Args:
         model (torch.nn.Module): A PyTorch model capable of making predictions on data_loader.
@@ -226,7 +228,7 @@ def eval_model(model: nn.Module,
 
     Returns:
         (dict): Results of model making predictions on data_loader.
-    """
+
     loss, acc = 0, 0
     model.eval()
     with torch.inference_mode():
@@ -252,17 +254,136 @@ model_0_results = eval_model(model=model_0, data_loader=test_dataloader,
 )
 model_0_results
 
+"""
+from timeit import default_timer as timer 
+def print_train_time(start: float, end: float, device: torch.device = None):
+    """Prints difference between start and end time.
+
+    Args:
+        start (float): Start time of computation (preferred in timeit format). 
+        end (float): End time of computation.
+        device ([type], optional): Device that compute is running on. Defaults to None.
+
+    Returns:
+        float: time between start and end in seconds (higher is longer).
+    """
+    total_time = end - start
+    print(f"Train time on {device}: {total_time:.3f} seconds")
+    return total_time
+
 class FashionMNISTModelV1(nn.Module):
     def __init__(self, input_shape: int, hidden_units: int, output_shape: int):
-        super().__init()
+        super().__init__()
         self.layer_stack = nn.Sequential(
-            nn.Flattern(),
+            nn.Flatten(),
             nn.Linear(in_features=input_shape, out_features=hidden_units),
             nn.ReLU(),
             nn.Linear(in_features=hidden_units, out_features=output_shape),
             nn.ReLU()
             )
 
-        def forward(self, x: torch.Tensor):
-            return self.layer_stack(x)
+    def forward(self, x: torch.Tensor):
+        return self.layer_stack(x)
+
+
+
+torch.manual_seed(3)
+model_1 = FashionMNISTModelV1(input_shape=784,
+                              hidden_units=10,
+                              output_shape=len(class_names)
+).to(device)
+
+next(model_1.parameters()).device
+
+from helper_functions import accuracy_fn
+
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(params=model_1.parameters(), lr=0.1)
+
+def train_step(model: torch.nn.Module,
+               data_loader:torch.utils.data.DataLoader,
+               loss_fn: torch.nn.Module,
+               optimizer: torch.optim.Optimizer,
+               accuracy_fn,
+               device: torch.device = device):
+    train_loss, train_acc = 0, 0
+    for batch, (X, y) in enumerate(data_loader):
+        X,y = X.to(device), y.to(device)
+
+        #forward pass
+        y_pred = model(X)
+
+        loss = loss_fn(y_pred, y)
+        train_loss+= loss
+        train_acc += accuracy_fn(y_true=y, y_pred=y_pred.argmax(dim=1))
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+    train_loss /= len(data_loader)
+    train_acc /= len(data_loader)
+    print(f"Train loss: {train_loss:.5f} | Train accuracy: {train_acc:.2f}%")
+
+def test_step(data_loader: torch.utils.data.DataLoader,
+              model: torch.nn.Module,
+              loss_fn: torch.nn.Module,
+              accuracy_fn,
+              device: torch.device = device):
+    test_loss, test_acc = 0, 0
+    model.eval() # put model in eval mode
+    # Turn on inference context manager
+    with torch.inference_mode(): 
+        for X, y in data_loader:
+            # Send data to GPU
+            X, y = X.to(device), y.to(device)
+            
+            # 1. Forward pass
+            test_pred = model(X)
+            
+            # 2. Calculate loss and accuracy
+            test_loss += loss_fn(test_pred, y)
+            test_acc += accuracy_fn(y_true=y,
+                y_pred=test_pred.argmax(dim=1) # Go from logits -> pred labels
+            )
+        
+        # Adjust metrics and print out
+        test_loss /= len(data_loader)
+        test_acc /= len(data_loader)
+        print(f"Test loss: {test_loss:.5f} | Test accuracy: {test_acc:.2f}%\n")
+
+torch.manual_seed(3)
+
+trainTimeStartOnGpu = timer()
+
+epochs=3
+for epoch in tqdm(range(epochs)):
+    print(f"Epoch: {epoch}\n---------")
+    train_step(data_loader=train_dataloader,
+                model=model_1,
+                loss_fn=loss_fn,
+                optimizer=optimizer,
+                accuracy_fn=accuracy_fn
+                )
+    test_step(data_loader=test_dataloader,
+              model=model_1,
+              loss_fn=loss_fn,
+              accuracy_fn=accuracy_fn
+              )
+
+train_time_end_on_gpu = timer()
+total_train_time_model_1 = print_train_time(start=trainTimeStartOnGpu,
+                                            end=train_time_end_on_gpu,
+                                            device=device)
+
+
+model_1_results = eval_model(model=model_1,
+                  data_loader=test_dataloader,
+                    loss_fn=loss_fn,
+                    accuracy_fn=accuracy_fn)
+print(model_1_results)
+
+
+
+
 

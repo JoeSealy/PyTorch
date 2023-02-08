@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "CustomDatasets", "CustomDatasets\CustomDatasets.pyproj", "{A9B1CB35-CE3A-458E-84A7-D22D6A34CA16}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A9B1CB35-CE3A-458E-84A7-D22D6A34CA16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9B1CB35-CE3A-458E-84A7-D22D6A34CA16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6D397597-1616-4D8B-8618-D75559115D03}
+	EndGlobalSection
+EndGlobal

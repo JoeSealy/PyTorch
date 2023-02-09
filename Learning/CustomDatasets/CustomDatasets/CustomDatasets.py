@@ -1,10 +1,14 @@
 import torch 
 import os
+import pathlib
 from torch import nn
 from torch.utils.data import DataLoader
+from torch.utils.data import Dataset
 import numpy as np
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
+from PIL import Image
+from typing import Tuple, Dict, List
 torch.__version__
 
 device = "cuda" if torch.cuda.is_available else "cpu"
@@ -12,7 +16,7 @@ device = "cuda" if torch.cuda.is_available else "cpu"
 import requests
 import zipfile
 from pathlib import Path
-
+"""
 # Setup path to data folder
 data_path = Path("data/")
 image_path = data_path / "pizza_steak_sushi"
@@ -92,3 +96,80 @@ print(trainData.class_to_idx)
 
 print(len(trainData), len(testData))
 
+trainDataloader = DataLoader(dataset= trainData,
+                             batch_size=1,
+                             num_workers=1,
+                             shuffle=False)
+
+testDataloader = DataLoader(dataset=testData,
+                            batch_size=1,
+                            num_workers=1,
+                            shuffle=False)
+
+print(trainDataloader, testDataloader)
+
+#trainDataImg, trainDataLabel = next(iter(trainDataloader))
+#print(f"image shape{trainDataImg.shape}", f"image shape{trainDataLabel.shape}")
+"""
+
+
+#2--------------------------------------------------------
+# Setup path for target directory
+target_directory = train_dir
+print(f"Target directory: {target_directory}")
+
+# Get the class names from the target directory
+class_names_found = sorted([entry.name for entry in list(os.scandir(image_path / "train"))])
+print(f"Class names found: {class_names_found}")
+
+# Make function to find classes in target directory
+def find_classes(directory: str) -> Tuple[List[str], Dict[str, int]]:
+    """Finds the class folder names in a target directory.
+    
+    Assumes target directory is in standard image classification format.
+
+    Args:
+        directory (str): target directory to load classnames from.
+
+    Returns:
+        Tuple[List[str], Dict[str, int]]: (list_of_class_names, dict(class_name: idx...))
+    
+    Example:
+        find_classes("food_images/train")
+        >>> (["class_1", "class_2"], {"class_1": 0, ...})
+    """
+    # 1. Get the class names by scanning the target directory
+    classes = sorted(entry.name for entry in os.scandir(directory) if entry.is_dir())
+    
+    # 2. Raise an error if class names not found
+    if not classes:
+        raise FileNotFoundError(f"Couldn't find any classes in {directory}.")
+        
+    # 3. Crearte a dictionary of index labels (computers prefer numerical rather than string labels)
+    class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
+    return classes, class_to_idx
+
+
+class ImageFolderCustom(Dataset):
+    def __init__(self, targ_dir:str, transform=None) -> None:
+        self.paths = list(pathlib.Path(targ_dir).glob("*/*.jpg"))
+        self.transform = transform
+        self.classes, self.classToIdx = find_classes(targ_dir)
+
+    def load_image(self, index:int) -> Image.Image:
+        image_path = self.paths[index]
+        return Image.open(image_path)
+    def __len__(self) -> int:
+        return len(self.paths)
+    def __getitem__(self, index:int) -> Tuple[torch.Tensor, int]:
+        img = self.load_image(index)
+        class_name = self.path[index].parent.name
+        class_idx = self.class_to_idx[class_name]
+        
+        if self.transform:
+            return self.transform(img), class_idx
+        else:
+            return img,class_idx
+
+trainTransforms = transforms.Compose([
+    transforms])

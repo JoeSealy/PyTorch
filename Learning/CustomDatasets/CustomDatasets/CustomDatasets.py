@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
 from PIL import Image
 from typing import Tuple, Dict, List
+from torchvision import transforms
 torch.__version__
 
 device = "cuda" if torch.cuda.is_available else "cpu"
@@ -16,7 +17,7 @@ device = "cuda" if torch.cuda.is_available else "cpu"
 import requests
 import zipfile
 from pathlib import Path
-"""
+
 # Setup path to data folder
 data_path = Path("data/")
 image_path = data_path / "pizza_steak_sushi"
@@ -89,6 +90,11 @@ trainData = datasets.ImageFolder(root=trainDir,
 testData = datasets.ImageFolder(root=testDir,
                                 transform=dataTransform)
 
+# Get class names as a list
+class_names = trainData.classes
+class_names
+
+
 print(f"Train data:\n{trainData}\nTest data:\n{testData}")
 
 print(trainData.classes)
@@ -110,12 +116,12 @@ print(trainDataloader, testDataloader)
 
 #trainDataImg, trainDataLabel = next(iter(trainDataloader))
 #print(f"image shape{trainDataImg.shape}", f"image shape{trainDataLabel.shape}")
-"""
+
 
 
 #2--------------------------------------------------------
 # Setup path for target directory
-target_directory = train_dir
+target_directory = trainDir
 print(f"Target directory: {target_directory}")
 
 # Get the class names from the target directory
@@ -154,7 +160,7 @@ class ImageFolderCustom(Dataset):
     def __init__(self, targ_dir:str, transform=None) -> None:
         self.paths = list(pathlib.Path(targ_dir).glob("*/*.jpg"))
         self.transform = transform
-        self.classes, self.classToIdx = find_classes(targ_dir)
+        self.classes, self.class_to_idx = find_classes(targ_dir)
 
     def load_image(self, index:int) -> Image.Image:
         image_path = self.paths[index]
@@ -163,7 +169,7 @@ class ImageFolderCustom(Dataset):
         return len(self.paths)
     def __getitem__(self, index:int) -> Tuple[torch.Tensor, int]:
         img = self.load_image(index)
-        class_name = self.path[index].parent.name
+        class_name = self.paths[index].parent.name
         class_idx = self.class_to_idx[class_name]
         
         if self.transform:
@@ -172,4 +178,121 @@ class ImageFolderCustom(Dataset):
             return img,class_idx
 
 trainTransforms = transforms.Compose([
-    transforms])
+    transforms.Resize((64,64)),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.ToTensor()
+    ])
+
+testTransforms = transforms.Compose([
+    transforms.Resize((64, 64)),
+    transforms.ToTensor()
+    ])
+
+trainDataCustom = ImageFolderCustom(targ_dir= trainDir,
+                                    transform = trainTransforms)
+testDataCustom = ImageFolderCustom(targ_dir= testDir,
+                                    transform = testTransforms)
+
+print(trainDataCustom, testDataCustom)
+
+print(len(trainDataCustom), len(testDataCustom))
+print(trainDataCustom.classes, trainDataCustom.class_to_idx)
+
+# Check for equality amongst our custom Dataset and ImageFolder Dataset
+print((len(trainDataCustom) == len(trainData)) & (len(testDataCustom) == len(testData)))
+print(trainDataCustom.classes == trainData.classes)
+print(trainDataCustom.class_to_idx == trainData.class_to_idx)
+
+def display_random_images(dataset: torch.utils.data.dataset.Dataset,
+                          classes: List[str] = None,
+                          n:int = 10,
+                          display_shape: bool = True,
+                          seed: int = None):
+    if n > 10:
+        n = 10
+        display_shape = False
+        print("set to 10 removing shape")
+
+    if seed:
+        random.seed(seed)
+
+    random_samples_idx = random.sample(range(len(dataset)), k=n)
+
+    plt.figure(figsize = (16, 8))
+
+    for i, targ_sample in enumerate(random_samples_idx):
+        targ_image, targ_label = dataset[targ_sample][0], dataset[targ_sample][1]
+
+        targ_image_adjust = targ_image.permute(1,2,0)
+
+        plt.subplot(1, n, i+1)
+        plt.imshow(targ_image_adjust)
+        plt.axis("off")
+        if classes:
+            title = f"class: {classes[targ_label]}"
+            if display_shape:
+                title = title + f"\n shape: {targ_image_adjust.shape}"
+        plt.title(title)
+
+display_random_images(trainData, 
+                      n=5, 
+                      classes=class_names,
+                      seed=None)
+
+
+display_random_images(trainDataCustom, 
+                      n=12, 
+                      classes=class_names,
+                      seed=None) # Try setting the seed for reproducible images
+
+trainDataloaderCustom = DataLoader(dataset=trainDataCustom,
+                                    batch_size=1,
+                                    num_workers=0,
+                                    shuffle=True)
+testDataloaderCustom = DataLoader(dataset=testDataCustom,
+                                    batch_size=1,
+                                    num_workers=0,
+                                    shuffle=False)
+print(trainDataloaderCustom, testDataloaderCustom)
+
+
+img_custom, label_custom = next(iter(trainDataloaderCustom))
+
+print(f"Image shape: {img_custom.shape} -> [batch_size, color_channels, height, width]")
+print(f"Label shape: {label_custom.shape}")
+
+trainTransforms = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.TrivialAugmentWide(num_magnitude_bins=31), # how intense 
+    transforms.ToTensor() # use ToTensor() last to get everything between 0 & 1
+    ])
+
+testTransforms = transforms.Compose([
+    transforms.Resize((224, 224)), 
+    transforms.ToTensor()
+])
+
+
+simpleTransform = transforms.Compose([ 
+    transforms.Resize((64, 64)),
+    transforms.ToTensor(),
+])
+
+trainDataSimple = datasets.ImageFolder(root=trainDir, transform=simpleTransform)
+testDataSimple = datasets.ImageFolder(root=testDir, transform=simpleTransform)
+
+BATCH_SIZE = 32
+NUM_WORKERS = os.cpu_count()
+print(f"Dataloader working with Batch{BATCH_SIZE} and {NUM_WORKERS}")
+
+trainDataloaderSimple = DataLoader(trainDataSimple, 
+                                     batch_size=BATCH_SIZE, 
+                                     shuffle=True, 
+                                     num_workers=NUM_WORKERS)
+
+testDataloaderSimple = DataLoader(testDataSimple, 
+                                    batch_size=BATCH_SIZE, 
+                                    shuffle=False, 
+                                    num_workers=NUM_WORKERS)
+
+print(trainDataloaderSimple, testDataloaderSimple)

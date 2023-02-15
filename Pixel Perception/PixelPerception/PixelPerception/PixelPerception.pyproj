@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>PixelPerception</Name>
     <RootNamespace>PixelPerception</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|pythonCUDA</InterpreterId>
+    <InterpreterId>Global|VisualStudio|pythonCUDA</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="CondaEnv|CondaEnv|pythonCUDA" />
+    <InterpreterReference Include="Global|VisualStudio|pythonCUDA" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

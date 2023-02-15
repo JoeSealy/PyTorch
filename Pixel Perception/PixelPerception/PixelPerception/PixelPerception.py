@@ -1,6 +1,8 @@
 from pydoc import classname
 import torch 
 from torch import nn
+from timeit import default_timer as timer 
+
 
 import torchvision
 from torchvision import datasets
@@ -10,6 +12,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from torch.utils.data import DataLoader
+
+from tqdm.auto import tqdm
+
 
 print(f"PyTorch version: {torch.__version__}\ntorchvision version: {torchvision.__version__}")
 
@@ -73,5 +78,51 @@ class CIFAR10Model(nn.Module):
         return self.layer(x)
 
 torch.manual_seed(3)
-model = CIFAR10Model(inputShape = 1024, hiddenUnits = 10, outputShape = len(classNames))
+model = CIFAR10Model(inputShape = 3072, hiddenUnits = 10, outputShape = len(classNames))
 print(model)
+
+def accuracy_fn(y_true, y_pred):
+    """Calculates accuracy between truth labels and predictions.
+    Args:
+        y_true (torch.Tensor): Truth labels for predictions.
+        y_pred (torch.Tensor): Predictions to be compared to predictions.
+    Returns:
+        [torch.float]: Accuracy value between y_true and y_pred, e.g. 78.45
+    """
+    correct = torch.eq(y_true, y_pred).sum().item()
+    acc = (correct / len(y_pred)) * 100
+    return 
+
+lossfunc = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(params=model.parameters(), lr=0.1)
+
+torch.manual_seed(3)
+epochs = 3
+
+for epoch in tqdm(range(epochs)):
+    print(f"Epoch: {epoch}\n------")
+    
+    trainLoss = 0
+
+    for batch, (X, y ) in enumerate(trainDataloader):
+        model.train()
+
+        yPred = model(X)
+        loss = lossfunc(yPred, y)
+        trainLoss += loss
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if batch % 400 ==0:
+            print(f"Looked at {batch * len(X)}/{len(trainDataloader.dataset)} samples")
+        testLoss, testAcc  = 0, 0
+        model.eval()
+        with torch.inference_mode():
+            for X,y in testDataloader:
+                testPred = model(X)
+                testLoss += lossfunc(testPred, y)
+                testAcc += accuracy_fn(y_true = y, y_pred=testPred.argmax(dim=1))
+            testLoss /= len(testDataloader)
+            testAcc /= len(testDataloader)
+        print(f"\nTrain loss: {trainLoss:.5f} | Test loss: {testLoss:.5f}, Test acc: {testAcc:.2f}%\n")

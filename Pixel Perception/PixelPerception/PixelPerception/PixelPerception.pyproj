@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>044d22d0-7979-4e2e-a1f0-f8c464b141b0</ProjectGuid>
+    <ProjectGuid>0ea9c86b-f451-4b70-b725-258af8ba9d60</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>PixelPerception.py</StartupFile>
     <SearchPath>

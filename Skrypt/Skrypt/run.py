@@ -28,7 +28,9 @@ import numpy as np
 
 import os
 from skimage.feature import canny
+from skimage import filters
 import cv2
+import docx
 
 from skimage import morphology
 # Check versions
@@ -367,35 +369,44 @@ def make_predictions(model: torch.nn.Module, data: list, device: torch.device = 
 
 def images_to_tensor(folder_path: str, img_size: int = 28) -> torch.Tensor:
 
+
+    def threshold_tensor(img):
+    # Convert the tensor to a numpy array
+        img = img.numpy()
+
+    # Apply Otsu's method to find the optimal threshold value
+        threshold = filters.threshold_otsu(img)
+
+    # Apply the threshold to the image to convert darker pixels to black and lighter pixels to white
+        img_bw = img <= threshold
+
+    # Convert the numpy array back to a tensor
+        img_bw = torch.from_numpy(img_bw.astype(np.float32))
+
+    # Return the binary image tensor
+        return img_bw
+
+
     transform = transforms.Compose([
-        transforms.Resize((28, 28)),
         transforms.Grayscale(),
-        transforms.ColorJitter(brightness=0.3, contrast=0.3),
+        transforms.Resize((28, 28)),
         transforms.ToTensor(),
-        #transforms.Lambda(lambda x: x.repeat(3, 1, 1)), # duplicate the single channel for compatibility with pretrained models
-        transforms.Normalize((0.1307,), (0.3081,)),
+        transforms.Normalize((0.1751,), (0.3332,)),
     ])
+
     images = []
     for filename in os.listdir(folder_path):
         img_path = os.path.join(folder_path, filename)
         with Image.open(img_path) as img:
-            # Apply the transform to the image
-            img_tensor = transform(img)
-            # Crop the image to remove unwanted borders or noise
-            img_tensor = TF.resized_crop(img_tensor, top=3, left=3, height=20, width=20, size=(28,28))
-            img_tensor[img_tensor < 0.5] = 0
-            # Enhance the contrast and edges of the image using the Canny filter from skimage
-            img_np = img_tensor.numpy()[0] # Convert the tensor to a numpy array
-            img_edges = canny(img_np, sigma=1)
-            img_edges = torch.from_numpy(img_edges).unsqueeze(0) # Convert the numpy array back to a tensor
-            img_tensor = TF.adjust_contrast(img_tensor, contrast_factor=2)
-            img_tensor = img_edges.float() * img_tensor
-            # Normalize the pixel values and append to the list of images
-            images.append(TF.normalize(img_tensor, (0.1307,), (0.3081,)))
-    # Stack the list of images into a single tensor and return
+            img = transform(img)
+            img = TF.resized_crop(img, top=3, left=3, height=22, width=22, size=(28,28))
+            img = threshold_tensor(img)
+            images.append(img)
+
     return images
 
-folder_path = "letters/alphabetcaps"
+
+folder_path = "letters/alphabetnocaps"
 images = images_to_tensor(folder_path)
 
 random.seed(42)
@@ -415,14 +426,25 @@ pred_classes = pred_probs.argmax(dim=1)
 plt.figure(figsize=(18, 18))
 nrows = 6
 ncols = 6
+pred_label_list=[]
 for i, image in enumerate(images):
 
   plt.subplot(nrows, ncols, i+1)
   plt.imshow(image.squeeze(), cmap="gray")
   pred_label = class_names[pred_classes[i]]
+  pred_label_list.append(pred_label)
   title_text = f"Pred: {pred_label}"
   plt.title(title_text, fontsize=10, c="g")
 
 
-plt.show()
+def output_letters_to_word_doc(letters):
+    doc = docx.Document()
+    string = ''.join(letters)
 
+    print("string success")
+
+    doc.add_paragraph('Predicted letters: ' + string)
+    doc.save('predicted_letters.docx')
+    print("save complete")
+
+output_letters_to_word_doc(pred_label_list)

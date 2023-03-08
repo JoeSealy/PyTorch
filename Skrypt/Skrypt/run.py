@@ -7,7 +7,7 @@ from torch import nn
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as TF
-
+import random
 # Import torchvision 
 import torchvision
 from torchvision import datasets
@@ -22,10 +22,15 @@ from tqdm.auto import tqdm
 from pathlib import Path
 
 from PIL import Image
+from PIL import ImageOps
+
+import numpy as np
 
 import os
+from skimage.feature import canny
+import cv2
 
-
+from skimage import morphology
 # Check versions
 # Note: your PyTorch version shouldn't be lower than 1.10.0 and torchvision version shouldn't be lower than 0.11
 print(f"PyTorch version: {torch.__version__}\ntorchvision version: {torchvision.__version__}")
@@ -363,28 +368,52 @@ def make_predictions(model: torch.nn.Module, data: list, device: torch.device = 
 def images_to_tensor(folder_path: str, img_size: int = 28) -> torch.Tensor:
 
     transform = transforms.Compose([
-        transforms.Resize((img_size, img_size)),
-        transforms.Grayscale(num_output_channels=1), 
-        transforms.ToTensor() 
+        transforms.Resize((28, 28)),
+        transforms.Grayscale(),
+        transforms.ColorJitter(brightness=0.3, contrast=0.3),
+        transforms.ToTensor(),
+        #transforms.Lambda(lambda x: x.repeat(3, 1, 1)), # duplicate the single channel for compatibility with pretrained models
+        transforms.Normalize((0.1307,), (0.3081,)),
     ])
     images = []
     for filename in os.listdir(folder_path):
         img_path = os.path.join(folder_path, filename)
         with Image.open(img_path) as img:
+            # Apply the transform to the image
             img_tensor = transform(img)
-            images.append(img_tensor)
-    return torch.stack(images)
+            # Crop the image to remove unwanted borders or noise
+            img_tensor = TF.resized_crop(img_tensor, top=3, left=3, height=20, width=20, size=(28,28))
+            img_tensor[img_tensor < 0.5] = 0
+            # Enhance the contrast and edges of the image using the Canny filter from skimage
+            img_np = img_tensor.numpy()[0] # Convert the tensor to a numpy array
+            img_edges = canny(img_np, sigma=1)
+            img_edges = torch.from_numpy(img_edges).unsqueeze(0) # Convert the numpy array back to a tensor
+            img_tensor = TF.adjust_contrast(img_tensor, contrast_factor=2)
+            img_tensor = img_edges.float() * img_tensor
+            # Normalize the pixel values and append to the list of images
+            images.append(TF.normalize(img_tensor, (0.1307,), (0.3081,)))
+    # Stack the list of images into a single tensor and return
+    return images
 
-folder_path = "letters/alphabetnocaps"
+folder_path = "letters/alphabetcaps"
 images = images_to_tensor(folder_path)
+
+random.seed(42)
+test_samples = []
+test_labels = []
+for sample, label in random.sample(list(testData), k=9):
+    test_samples.append(sample)
+    test_labels.append(label)
+
+images = images + test_samples
 
 pred_probs= make_predictions(model=loaded_model, 
                              data=images)
 
 pred_classes = pred_probs.argmax(dim=1)
 
-plt.figure(figsize=(15, 18))
-nrows = 5
+plt.figure(figsize=(18, 18))
+nrows = 6
 ncols = 6
 for i, image in enumerate(images):
 

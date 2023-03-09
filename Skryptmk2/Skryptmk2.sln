@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Skryptmk2", "Skryptmk2\Skryptmk2.pyproj", "{C253613B-7DC5-4A05-9DB5-FFC590AB211A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C253613B-7DC5-4A05-9DB5-FFC590AB211A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C253613B-7DC5-4A05-9DB5-FFC590AB211A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F1056E1-1245-424A-B59D-C02E371110A3}
+	EndGlobalSection
+EndGlobal
